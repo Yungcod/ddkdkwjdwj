@@ -15,39 +15,22 @@ def init_driver():
     driver = webdriver.Chrome(service=webdriver.ChromeService(ChromeDriverManager().install()), options=options)
     return driver
 
-def scrape_realitymix(driver):
-    url = "https://realitymix.cz/vyhledavani/praha/pronajem-bytu.html"
-    driver.get(url)
-    time.sleep(2)  # даём странице прогрузиться
-    soup = BeautifulSoup(driver.page_source, "html.parser")
 
-    results = []
-    # ищем все ссылки на детали квартир
-    for a in soup.find_all("a", href=True):
-        href = a["href"]
-        # на RealityMix все объявления ведут на /byt/ или /detail/
-        if href.startswith("/byt/") or href.startswith("/detail/"):
-            title = a.get_text(strip=True)
-            if title:
-                full = "https://realitymix.cz" + href
-                results.append({"Source": "RealityMix", "Title": title, "Link": full})
-    return results
-
-def scrape_expats(driver):
+def scrape_expats():
     url = "https://www.expats.cz/praguerealestate/apartments/for-rent/prague-region"
-    driver.get(url)
-    time.sleep(2)
-    soup = BeautifulSoup(driver.page_source, "html.parser")
-
+    resp = requests.get(url, headers=HEADERS)
+    soup = BeautifulSoup(resp.content, "html.parser")
     results = []
-    # на Expats все объявления ведут на /praguerealestate/
-    for a in soup.find_all("a", href=True):
-        if "/praguerealestate/" in a["href"]:
+    for a in soup.select("div.listing-title a"):
+        try:
             title = a.get_text(strip=True)
-            if title:
-                full = "https://www.expats.cz" + a["href"]
-                results.append({"Source": "Expats", "Title": title, "Link": full})
+            href  = a["href"]
+            full  = "https://www.expats.cz" + href
+            results.append({"Source": "Expats", "Title": title, "Link": full})
+        except:
+            continue
     return results
+
 
 def scrape_bazos(keyword: str = "", pages: int = 1):
     """
