@@ -49,20 +49,38 @@ def scrape_expats(driver):
                 results.append({"Source": "Expats", "Title": title, "Link": full})
     return results
 
-def scrape_bazos():
-    url = "https://reality.bazos.cz/prodam/byt/?hledat=praha"
-    r = requests.get(url, headers=HEADERS)
-    soup = BeautifulSoup(r.content, "html.parser")
-
+def scrape_bazos(keyword: str = "", pages: int = 1):
+    """
+    Скрейпит Bazos.cz по параметрам:
+      keyword — фильтр по заголовку (частичное совпадение)
+      pages   — количество страниц для обхода
+    """
     results = []
-    for ad in soup.select(".inzeratynadpis"):
-        try:
-            title = ad.get_text(strip=True)
-            link = "https://reality.bazos.cz" + ad.find("a")["href"]
-            results.append({"Source": "Bazos", "Title": title, "Link": link})
-        except:
-            continue
+    base_url = "https://reality.bazos.cz/prodam/byt/?hledat=praha&page={}"
+
+    for page in range(1, pages + 1):
+        url = base_url.format(page)
+        r = requests.get(url, headers=HEADERS)
+        soup = BeautifulSoup(r.content, "html.parser")
+        ads = soup.select(".inzeratynadpis")
+
+        for ad in ads:
+            try:
+                title = ad.get_text(strip=True)
+                if keyword and keyword.lower() not in title.lower():
+                    continue
+                link = "https://reality.bazos.cz" + ad.find("a")["href"]
+                results.append({
+                    "Source": "Bazos",
+                    "Title": title,
+                    "Link": link
+                })
+            except Exception:
+                continue
+
+    print(f"Bazos: найдено {len(results)} объявлений (pages={pages}, keyword='{keyword}')")
     return results
+
 
 def save_to_csv(data, filename="output.csv"):
     with open(filename, "w", newline="", encoding="utf-8") as f:
