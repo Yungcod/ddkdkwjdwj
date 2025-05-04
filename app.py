@@ -3,7 +3,7 @@ import pandas as pd
 from scraper import scrape_bazos, scrape_expats
 
 st.set_page_config(page_title='Apartment Scraper', layout='wide')
-st.title('🏠 Apartment Scraper Dashboard')
+st.title(' Apartment Scraper Dashboard')
 
 # Sidebar
 st.sidebar.header('Настройки')
@@ -18,7 +18,7 @@ pages   = st.sidebar.slider('Страниц Bazos', 1, 10, 2)
 if st.sidebar.button('Запустить парсинг'):
     all_data = []
     if 'Bazos' in sources:
-        st.info('🔎 Scraping Bazos...')
+        st.info('Scraping Bazos...')
         all_data += scrape_bazos(keyword=keyword, pages=pages)
     if 'Expats' in sources:
         st.info('🔎 Scraping Expats...')
