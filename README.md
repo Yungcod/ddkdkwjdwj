@@ -1,13 +1,13 @@
-# 🏠 Apartment Scraper
+#  Apartment Scraper
 
 Scrapes flat listings from bazos.cz (section: flats in Prague) and exports them to CSV.
 
-## 🔧 Tech Stack
+##  Tech Stack
 - Python 3
 - requests
 - BeautifulSoup4
 
-## 🚀 Usage
+## Usage
 
 ```bash
 pip install -r requirements.txt
